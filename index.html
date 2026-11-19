@@ -227,6 +227,12 @@
         sub: 'ASSAULT RIFLE • BANDAGE • COMBAT KNIVES (x2)',
         accent: '#10b981',
         bg: 'linear-gradient(135deg, #12141a 0%, #1d222d 50%, #08090c 100%)'
+      },
+      'image (8).png': {
+        label: 'SECTOR 07 // QUARANTINE OUTPOST',
+        sub: 'ISLAND RECONNAISSANCE CAPTURE',
+        accent: '#ff2a4b',
+        bg: 'linear-gradient(135deg, #15171c 0%, #26181c 50%, #090b0f 100%)'
       }
     };
 
@@ -301,6 +307,99 @@
 </head>
 <body class="bg-obsidian text-gray-200 antialiased selection:bg-crimson selection:text-white">
 
+  <!-- ==================== 0. FULLSCREEN LAUNCH TRAILER INTRO OVERLAY ==================== -->
+  <div id="introTrailerOverlay" class="fixed inset-0 z-[120] bg-black/95 backdrop-blur-md flex flex-col items-center justify-start sm:justify-center p-3 sm:p-6 overflow-y-auto transition-opacity duration-500">
+    <!-- Top Tactical System Introduction Header -->
+    <div class="max-w-5xl w-full shrink-0 flex flex-wrap items-center justify-between gap-2 mb-3 font-mono text-xs">
+      <div class="flex items-center gap-2.5 text-crimson font-bold">
+        <span class="w-2.5 h-2.5 rounded-full bg-crimson animate-ping"></span>
+        <span>SYSTEM INTRODUCTION // FLOODED GROUNDS: OUTBREAK — OFFICIAL TRAILER</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="hidden md:inline-block px-2.5 py-1 bg-biohazard/15 border border-biohazard/40 text-biohazard text-[11px]">
+          UNITY 3D [C#] SURVIVAL HORROR FPS
+        </span>
+        <button onclick="dismissIntroTrailer()" class="px-4 py-1.5 bg-gunmetal hover:bg-crimson border border-white/20 hover:border-crimson text-white font-bold tracking-wider uppercase transition-colors cursor-pointer">
+          SKIP TO PORTAL [ESC] ⏭
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Trailer Video Frame (Plays existing trailer.mp4 / trailer.webm directly) -->
+    <div id="introVideoStage" class="relative max-w-5xl w-full shrink-0 aspect-video max-h-[64vh] bg-obsidian border border-crimson/50 clip-angular-card overflow-hidden shadow-[0_0_60px_rgba(255,42,75,0.3)] group">
+      <!-- Real Local Video Player (Plays trailer.mp4 directly from the same folder, with WebM fallback for embedded IDE previews) -->
+      <video
+        id="introTrailerVideo"
+        preload="auto"
+        muted
+        playsinline
+        controls
+        poster="image.png"
+        class="w-full h-full object-contain bg-black transition-all duration-300"
+        onplay="hideVideoPlayPrompt('introPlayOverlay')"
+        onended="onIntroTrailerEnded()"
+        onerror="handleTrailerVideoError(this, 'introPlayOverlay')"
+      >
+        <source src="trailer.mp4" type='video/mp4; codecs="avc1.64001f, mp4a.40.2"' />
+        <source src="trailer.webm" type="video/webm" />
+      </video>
+
+      <!-- Optional CRT Surveillance Filter Scanlines (Only active when Surveillance filter is chosen) -->
+      <div id="introVideoFilterOverlay" class="hidden absolute inset-0 pointer-events-none z-10 scanlines bg-biohazard/5"></div>
+
+      <!-- Tactile Click-to-Play Overlay (Bypasses browser/VS Code local autoplay blocks) -->
+      <div
+        id="introPlayOverlay"
+        onclick="startIntroVideoPlayback()"
+        class="absolute inset-x-0 top-0 bottom-12 z-20 bg-black/55 hover:bg-black/35 flex flex-col items-center justify-center cursor-pointer transition-all"
+      >
+        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-crimson hover:bg-rose-500 text-white flex items-center justify-center shadow-[0_0_40px_rgba(255,42,75,0.85)] transform hover:scale-110 transition-transform">
+          <svg class="w-10 h-10 ml-1" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </div>
+        <span class="mt-4 px-4 py-1.5 bg-obsidian/90 border border-crimson/60 font-mono text-xs sm:text-sm font-bold tracking-widest text-white uppercase">
+          ▶ WATCH SYSTEM INTRO TRAILER
+        </span>
+      </div>
+    </div>
+
+    <!-- System Introduction Advertisement & Video Filter Controls Bar -->
+    <div class="max-w-5xl w-full shrink-0 mt-3 bg-gunmetal/90 border border-white/10 px-4 py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+      <div class="space-y-1">
+        <div class="flex flex-wrap items-center gap-2 font-mono text-xs">
+          <span class="px-2 py-0.5 bg-crimson/20 border border-crimson/50 text-crimson font-bold uppercase">INTRODUCING THE SYSTEM</span>
+          <span class="text-white font-bold">FLOODED GROUNDS: OUTBREAK</span>
+          <span class="text-gray-400 hidden sm:inline">// SCAVENGE • DECODE RADIOS • ESCAPE THE ISLAND</span>
+        </div>
+        <p class="text-xs text-gray-300">
+          Experience 35.00 KG tactical backpack management, infected &amp; mutated combat, and emergency radio extraction on Windows PC.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 font-mono text-xs">
+        <!-- Video Filter Presets for trailer.mp4 -->
+        <div class="flex items-center gap-1 bg-obsidian border border-white/10 p-1">
+          <span class="text-[10px] text-gray-400 px-1.5 uppercase">FILTER:</span>
+          <button onclick="setIntroVideoFilter('original', this)" class="intro-filter-btn px-2 py-1 bg-crimson text-white font-bold uppercase cursor-pointer transition-colors">RAW</button>
+          <button onclick="setIntroVideoFilter('cinema', this)" class="intro-filter-btn px-2 py-1 bg-transparent text-gray-300 hover:text-white uppercase cursor-pointer transition-colors">OUTBREAK</button>
+          <button onclick="setIntroVideoFilter('night', this)" class="intro-filter-btn px-2 py-1 bg-transparent text-gray-300 hover:text-white uppercase cursor-pointer transition-colors">NIGHT OPS</button>
+          <button onclick="setIntroVideoFilter('surveillance', this)" class="intro-filter-btn px-2 py-1 bg-transparent text-gray-300 hover:text-white uppercase cursor-pointer transition-colors">CRT</button>
+        </div>
+
+        <button onclick="unmuteIntroTrailer()" id="introUnmuteBtn" class="px-3.5 py-1.5 bg-amberhazard/20 border border-amberhazard text-amberhazard hover:bg-amberhazard hover:text-obsidian font-bold transition-colors cursor-pointer">
+          🔊 UNMUTE TRAILER AUDIO
+        </button>
+        <button onclick="dismissIntroTrailer(); openDownloadModal();" class="px-3.5 py-1.5 bg-biohazard/20 border border-biohazard text-biohazard hover:bg-biohazard hover:text-obsidian font-bold uppercase transition-colors cursor-pointer">
+          GET PC BUILD
+        </button>
+        <button onclick="dismissIntroTrailer()" class="px-4 py-1.5 bg-crimson hover:bg-rose-500 text-white font-bold uppercase transition-colors cursor-pointer">
+          ENTER PORTAL ▸
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== 1. TOP TACTICAL NAVIGATION BAR ==================== -->
   <header class="fixed top-0 left-0 right-0 z-50 bg-obsidian/90 backdrop-blur-md border-b border-white/10">
     <!-- Top Micro Status Ticker -->
@@ -347,11 +446,11 @@
       <div class="hidden lg:flex items-center gap-6 font-heading text-sm tracking-widest uppercase">
         <a href="#overview" class="text-gray-300 hover:text-crimson transition-colors py-1 border-b-2 border-transparent hover:border-crimson">Overview</a>
         <a href="#dossier" class="text-gray-300 hover:text-crimson transition-colors py-1 border-b-2 border-transparent hover:border-crimson">Survivor &amp; Threats</a>
+        <a href="#trailer-center" class="text-amberhazard hover:text-white transition-colors py-1 border-b-2 border-transparent hover:border-amberhazard">Trailer</a>
         <a href="#arsenal" class="text-gray-300 hover:text-crimson transition-colors py-1 border-b-2 border-transparent hover:border-crimson">Arsenal &amp; Loot</a>
         <a href="#sectors" class="text-gray-300 hover:text-crimson transition-colors py-1 border-b-2 border-transparent hover:border-crimson">Island Sectors</a>
         <a href="#gallery" class="text-gray-300 hover:text-crimson transition-colors py-1 border-b-2 border-transparent hover:border-crimson">Media Gallery</a>
         <a href="#controls" class="text-gray-300 hover:text-crimson transition-colors py-1 border-b-2 border-transparent hover:border-crimson">Controls &amp; Specs</a>
-        <a href="#team" class="text-gray-300 hover:text-crimson transition-colors py-1 border-b-2 border-transparent hover:border-crimson">Dev Team</a>
       </div>
 
       <!-- Right Actions -->
@@ -376,11 +475,12 @@
     <div id="mobileMenu" class="hidden lg:hidden bg-gunmetal border-t border-white/10 px-4 py-4 space-y-2 font-heading tracking-widest uppercase text-sm">
       <a href="#overview" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded hover:bg-white/5 text-gray-200">01 // Overview</a>
       <a href="#dossier" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded hover:bg-white/5 text-gray-200">02 // Survivor &amp; Threats</a>
-      <a href="#arsenal" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded hover:bg-white/5 text-gray-200">03 // Arsenal &amp; Loot</a>
-      <a href="#sectors" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded hover:bg-white/5 text-gray-200">04 // Island Sectors</a>
-      <a href="#gallery" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded hover:bg-white/5 text-gray-200">05 // Media Gallery</a>
-      <a href="#controls" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded hover:bg-white/5 text-gray-200">06 // Controls &amp; Specs</a>
-      <a href="#team" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded hover:bg-white/5 text-gray-200">07 // Dev Team</a>
+      <a href="#trailer-center" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded hover:bg-white/5 text-amberhazard">03 // Official Trailer</a>
+      <a href="#arsenal" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded hover:bg-white/5 text-gray-200">04 // Arsenal &amp; Loot</a>
+      <a href="#sectors" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded hover:bg-white/5 text-gray-200">05 // Island Sectors</a>
+      <a href="#gallery" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded hover:bg-white/5 text-gray-200">06 // Media Gallery</a>
+      <a href="#controls" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded hover:bg-white/5 text-gray-200">07 // Controls &amp; Specs</a>
+      <a href="#team" onclick="toggleMobileMenu()" class="block py-2 px-3 rounded hover:bg-white/5 text-gray-200">08 // Dev Team</a>
     </div>
   </header>
 
@@ -454,10 +554,8 @@
             <span id="heroRadioBtnText">PLAY RADIO TRANSMISSION</span>
           </button>
 
-          <button onclick="openLightbox('image (6).png', 'FIRST-PERSON COMBAT HUD — Assault Rifle deployed in the flooded autumn perimeter.')" class="p-4 bg-white/5 hover:bg-white/10 border border-white/15 text-gray-300 hover:text-white clip-angular-sm transition-colors cursor-pointer" title="Inspect Fullscreen Gameplay">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-            </svg>
+          <button onclick="openIntroTrailerAgain()" class="clip-angular-btn bg-white/10 hover:bg-white/20 border border-white/25 text-white font-heading font-bold text-base sm:text-lg tracking-widest uppercase px-6 py-4 transition-all flex items-center gap-2.5 cursor-pointer">
+            <span>▶ WATCH INTRO TRAILER</span>
           </button>
         </div>
 
@@ -641,6 +739,70 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 3.5 CENTER-STAGE OFFICIAL TRAILER THEATER ==================== -->
+  <section id="trailer-center" class="py-20 bg-obsidian border-b border-white/10 relative overflow-hidden">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Centered Section Header -->
+      <div class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 font-mono text-xs text-crimson tracking-[0.25em] uppercase mb-2">
+          <span class="w-2 h-2 rounded-full bg-crimson animate-pulse"></span>
+          <span>// OFFICIAL GAMEPLAY &amp; ATMOSPHERE REVEAL</span>
+        </div>
+        <h2 class="font-display text-5xl sm:text-6xl font-bold uppercase tracking-wide text-white leading-none">
+          FLOODED GROUNDS: <span class="text-crimson">THE FINAL TRANSMISSION</span>
+        </h2>
+        <p class="text-gray-400 max-w-2xl mx-auto text-sm sm:text-base mt-3">
+          Review the official reveal trailer anytime below—featuring the arched estate gates, the overgrown hedge maze, and the flooded perimeter quarantine zone.
+        </p>
+      </div>
+
+      <!-- Centered Trailer Viewport Frame -->
+      <div class="hud-bracket bg-gunmetal border border-white/15 p-2.5 shadow-[0_0_50px_rgba(0,0,0,0.85)]">
+        <div class="relative aspect-video bg-black overflow-hidden">
+          <video
+            id="centerTrailerVideo"
+            preload="metadata"
+            controls
+            playsinline
+            poster="image.png"
+            class="w-full h-full object-contain bg-black"
+            onplay="hideVideoPlayPrompt('centerPlayOverlay')"
+            onerror="handleTrailerVideoError(this, 'centerPlayOverlay')"
+          >
+            <source src="trailer.mp4" type='video/mp4; codecs="avc1.64001f, mp4a.40.2"' />
+            <source src="trailer.webm" type="video/webm" />
+          </video>
+
+          <!-- Tactile Click-to-Play Overlay for Center Theater -->
+          <div
+            id="centerPlayOverlay"
+            onclick="replayCenterTrailer()"
+            class="absolute inset-x-0 top-0 bottom-12 z-20 bg-black/50 hover:bg-black/30 flex flex-col items-center justify-center cursor-pointer transition-all"
+          >
+            <div class="w-20 h-20 rounded-full bg-crimson hover:bg-rose-500 text-white flex items-center justify-center shadow-[0_0_35px_rgba(255,42,75,0.8)] transform hover:scale-110 transition-transform">
+              <svg class="w-9 h-9 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+            <span class="mt-3 px-4 py-1.5 bg-obsidian/90 border border-white/20 font-mono text-xs font-bold tracking-widest text-white uppercase">
+              ▶ PLAY OFFICIAL REVEAL TRAILER
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review / Replay Controls Bar Below Center Video -->
+      <div class="mt-5 flex flex-wrap items-center justify-center gap-4">
+        <button onclick="replayCenterTrailer()" class="clip-angular-btn bg-crimson hover:bg-rose-500 text-white font-heading font-bold text-sm sm:text-base tracking-widest uppercase px-6 py-3 shadow-[0_0_20px_rgba(255,42,75,0.4)] transition-all flex items-center gap-2 cursor-pointer">
+          <span>↻ REVIEW TRAILER FROM START</span>
+        </button>
+        <button onclick="openIntroTrailerAgain()" class="clip-angular-btn bg-gunmetal hover:bg-steel border border-white/20 text-gray-200 hover:text-white font-heading font-bold text-sm sm:text-base tracking-widest uppercase px-6 py-3 transition-all flex items-center gap-2 cursor-pointer">
+          <span>⤢ FULLSCREEN CINEMA MODE</span>
+        </button>
       </div>
     </div>
   </section>
@@ -908,8 +1070,8 @@
 
         <!-- Category Filters -->
         <div class="flex flex-wrap gap-2 font-heading text-sm tracking-wider uppercase">
-          <button onclick="filterGallery('all', this)" class="gal-filter active px-4 py-2 bg-crimson text-white clip-angular-sm cursor-pointer">All Captures (8)</button>
-          <button onclick="filterGallery('environment', this)" class="gal-filter px-4 py-2 bg-gunmetal text-gray-300 hover:text-white border border-white/10 clip-angular-sm cursor-pointer">Environments (6)</button>
+          <button onclick="filterGallery('all', this)" class="gal-filter active px-4 py-2 bg-crimson text-white clip-angular-sm cursor-pointer">All Captures (9)</button>
+          <button onclick="filterGallery('environment', this)" class="gal-filter px-4 py-2 bg-gunmetal text-gray-300 hover:text-white border border-white/10 clip-angular-sm cursor-pointer">Environments (7)</button>
           <button onclick="filterGallery('combat', this)" class="gal-filter px-4 py-2 bg-gunmetal text-gray-300 hover:text-white border border-white/10 clip-angular-sm cursor-pointer">Combat &amp; UI (2)</button>
         </div>
       </div>
@@ -1241,6 +1403,13 @@
         tag: 'SECTOR 06',
         title: 'Flooded Perimeter Road',
         caption: 'SECTOR 06 — Submerged dirt road lined with iron fencing, leaning utility poles, and dense red woods.'
+      },
+      {
+        file: 'image (8).png',
+        category: 'environment',
+        tag: 'SECTOR 07',
+        title: 'Quarantine Island Outpost',
+        caption: 'SECTOR 07 — Additional reconnaissance capture from the flooded quarantine island.'
       }
     ];
 
@@ -1254,30 +1423,32 @@
       initParticles();
       updateClock();
       setInterval(updateClock, 1000);
+      initTrailerPlayers();
     });
 
+    // ==================== CORE UI, DOSSIER & HOTBAR HANDLERS ====================
     function updateClock() {
-      const now = new Date();
       const el = document.getElementById('liveClock');
-      if (el) el.textContent = 'UTC ' + now.toUTCString().split(' ')[4];
+      if (!el) return;
+      const now = new Date();
+      el.textContent = 'UTC ' + now.toISOString().substring(11, 19);
     }
 
     function toggleMobileMenu() {
       const menu = document.getElementById('mobileMenu');
-      menu.classList.toggle('hidden');
+      if (menu) menu.classList.toggle('hidden');
     }
 
-    // 3. SURVIVOR & THREAT DOSSIER SWITCHER
-    const ENTITY_DATA = {
+    const ENTITIES_DATA = {
       jake: {
         badge: 'PLAYABLE SURVIVOR',
-        badgeClass: 'bg-biohazard/20 border-biohazard text-biohazard',
-        zone: 'ZONE: ALL ISLAND SECTORS',
+        badgeClass: 'px-2.5 py-0.5 bg-biohazard/20 border border-biohazard text-biohazard font-mono text-xs font-bold uppercase',
+        zone: 'ZONE: ALL SECTORS',
         title: 'JAKE',
         subtitle: 'SOLE SURVIVOR // RECON & EXTRACTION OPERATIVE',
         desc: 'Trapped on the flooded island after the outbreak severed all mainland bridges, Jake relies on scavenged military hardware, a high-beam tactical flashlight ([F]), and a 35.00 KG modular backpack to survive ambushes and reach the extraction boat.',
         image: 'image (6).png',
-        camTag: 'CAM-01 // FIRST-PERSON COMBAT FEED',
+        caption: 'JAKE — Sole Survivor patrolling the flooded quarantine island with Assault Rifle.',
         stats: [82, 75, 65],
         barColor: 'bg-biohazard',
         traits: [
@@ -1288,191 +1459,382 @@
       },
       infected: {
         badge: 'HOSTILE CLASS-A',
-        badgeClass: 'bg-crimson/20 border-crimson text-crimson',
-        zone: 'ZONE: FLOODED ROADS & CABINS',
+        badgeClass: 'px-2.5 py-0.5 bg-crimson/20 border border-crimson text-crimson font-mono text-xs font-bold uppercase',
+        zone: 'ZONE: FORESTS & BRIDGES',
         title: 'INFECTED ZOMBIES',
-        subtitle: 'RELENTLESS SWARM // CLOSE-QUARTERS THREAT',
-        desc: 'Former island residents overtaken by the pathogen. They lurk along flooded perimeter roads, wooden cabins, and overgrown hedge mazes—converging rapidly on gunfire and flashlight beams.',
+        subtitle: 'SWARM HOSTILES // RELENTLESS PURSUERS',
+        desc: 'Former island residents overtaken by the outbreak pathogen. They patrol flooded roadways, ruined bridges, and abandoned homesteads in packs, reacting aggressively to unmasked gunfire and movement.',
         image: 'image (1).png',
-        camTag: 'CAM-06 // FLOODED PERIMETER AMBUSH ZONE',
-        stats: [70, 78, 90],
+        caption: 'INFECTED ZOMBIES — Hostile swarm patrolling the flooded perimeter road.',
+        stats: [74, 80, 88],
         barColor: 'bg-crimson',
         traits: [
-          'Aggressive pack pursuit when alerted by unsuppressed gunfire',
-          'Concealed within tall marsh grass and dark manor corridors',
-          'Vulnerable to accurate headshots via [M2] scope aim'
+          'Relentless close-quarters pursuit across flooded terrain',
+          'High auditory sensitivity to unsuppressed rifle fire',
+          'Dangerous in multi-target ambushes near chokepoints'
         ]
       },
       mutated: {
         badge: 'APEX MUTATION',
-        badgeClass: 'bg-amberhazard/20 border-amberhazard text-amberhazard',
-        zone: 'ZONE: RADIO TOWER & MANOR',
+        badgeClass: 'px-2.5 py-0.5 bg-amberhazard/20 border border-amberhazard text-amberhazard font-mono text-xs font-bold uppercase',
+        zone: 'ZONE: MANOR & COMMS TOWER',
         title: 'MUTATED ZOMBIES',
-        subtitle: 'HEAVILY MUTATED // HIGH-LETHALITY VARIANT',
-        desc: 'Advanced biological aberrations encountered near critical radio relay towers and fortified structures. Capable of absorbing heavy damage before falling, forcing survivors to manage Assault Rifle ammo wisely.',
-        image: 'image (5).png',
-        camTag: 'CAM-05 // RADIO TOWER HIGH-THREAT SECTOR',
-        stats: [95, 68, 96],
+        subtitle: 'EVOLVED BIOLOGICAL THREAT // HEAVY RESISTANCE',
+        desc: 'Severely mutated specimens concentrated around high-value structures like the Manor Hedge Maze and Radio Comms Tower. They absorb heavy punishment and require sustained precision fire.',
+        image: 'image (2).png',
+        caption: 'MUTATED ZOMBIES — Apex biological threat guarding the Manor & Hedge Maze.',
+        stats: [95, 70, 92],
         barColor: 'bg-amberhazard',
         traits: [
-          'High durability requiring sustained Assault Rifle fire (DMG: 45)',
-          'Guards vital radio transmission clues and extraction paths',
-          'Inflicts severe trauma requiring immediate Bandage treatment'
+          'Enhanced durability against standard body shots',
+          'Guards high-tier loot and extraction radio frequencies',
+          'Requires scoped headshots [M2] or tactical evasion'
         ]
       }
     };
 
     let currentEntityImg = 'image (6).png';
-    let currentEntityCaption = 'FIRST-PERSON COMBAT HUD — Jake patrolling the flooded autumn forest.';
+    let currentEntityCaption = 'JAKE — Sole Survivor patrolling the flooded quarantine island.';
 
     function selectEntity(key) {
-      const data = ENTITY_DATA[key];
+      const data = ENTITIES_DATA[key];
       if (!data) return;
 
-      // Update Tab Active Styles
-      document.querySelectorAll('.entity-tab').forEach(btn => {
-        btn.classList.remove('bg-steel', 'border-biohazard', 'border-crimson', 'border-amberhazard');
-        btn.classList.add('bg-obsidian/80', 'border-white/20');
+      ['jake', 'infected', 'mutated'].forEach(id => {
+        const tab = document.getElementById('tab-' + id);
+        if (!tab) return;
+        if (id === key) {
+          tab.classList.remove('bg-obsidian/80', 'border-white/20');
+          tab.classList.add('bg-steel', id === 'jake' ? 'border-biohazard' : id === 'infected' ? 'border-crimson' : 'border-amberhazard');
+        } else {
+          tab.classList.remove('bg-steel', 'border-biohazard', 'border-crimson', 'border-amberhazard');
+          tab.classList.add('bg-obsidian/80', 'border-white/20');
+        }
       });
-      const activeBtn = document.getElementById('tab-' + key);
-      activeBtn.classList.remove('bg-obsidian/80', 'border-white/20');
-      activeBtn.classList.add('bg-steel', key === 'jake' ? 'border-biohazard' : key === 'infected' ? 'border-crimson' : 'border-amberhazard');
 
-      // Update Content
-      const badge = document.getElementById('entityBadge');
-      badge.textContent = data.badge;
-      badge.className = `px-2.5 py-0.5 border font-mono text-xs font-bold uppercase ${data.badgeClass}`;
+      const imgEl = document.getElementById('entityImage');
+      if (imgEl) window.setGameImage(imgEl, data.image);
 
-      document.getElementById('entityZone').textContent = data.zone;
-      document.getElementById('entityTitle').textContent = data.title;
-      document.getElementById('entitySubtitle').textContent = data.subtitle;
-      document.getElementById('entityDesc').textContent = data.desc;
-      window.setGameImage(document.getElementById('entityImage'), data.image);
-      document.getElementById('entityCamTag').textContent = data.camTag;
+      const badgeEl = document.getElementById('entityBadge');
+      if (badgeEl) {
+        badgeEl.className = data.badgeClass;
+        badgeEl.textContent = data.badge;
+      }
+      const zoneEl = document.getElementById('entityZone');
+      if (zoneEl) zoneEl.textContent = data.zone;
+      const titleEl = document.getElementById('entityTitle');
+      if (titleEl) titleEl.textContent = data.title;
+      const subEl = document.getElementById('entitySubtitle');
+      if (subEl) subEl.textContent = data.subtitle;
+      const descEl = document.getElementById('entityDesc');
+      if (descEl) descEl.textContent = data.desc;
+
+      [1, 2, 3].forEach((num, idx) => {
+        const valEl = document.getElementById('stat' + num + 'Val');
+        const barEl = document.getElementById('stat' + num + 'Bar');
+        if (valEl) valEl.textContent = data.stats[idx] + '%';
+        if (barEl) {
+          barEl.className = `h-full ${data.barColor} transition-all duration-500`;
+          barEl.style.width = data.stats[idx] + '%';
+        }
+      });
+
+      const traitsEl = document.getElementById('entityTraits');
+      if (traitsEl) {
+        const bulletColor = key === 'jake' ? 'text-biohazard' : key === 'infected' ? 'text-crimson' : 'text-amberhazard';
+        traitsEl.innerHTML = data.traits
+          .map(t => `<li class="flex items-center gap-2"><span class="${bulletColor}">▸</span> ${t}</li>`)
+          .join('');
+      }
 
       currentEntityImg = data.image;
-      currentEntityCaption = `${data.title} — ${data.subtitle}`;
-
-      // Update Stat Bars
-      ['stat1', 'stat2', 'stat3'].forEach((id, idx) => {
-        const val = data.stats[idx];
-        document.getElementById(id + 'Val').textContent = val + '%';
-        const bar = document.getElementById(id + 'Bar');
-        bar.style.width = val + '%';
-        bar.className = `h-full transition-all duration-500 ${data.barColor}`;
-      });
-
-      // Update Traits
-      const list = document.getElementById('entityTraits');
-      list.innerHTML = data.traits.map(t => `<li class="flex items-center gap-2"><span class="text-crimson">▸</span> ${t}</li>`).join('');
+      currentEntityCaption = data.caption;
     }
 
     function zoomCurrentEntityImage() {
       openLightbox(currentEntityImg, currentEntityCaption);
     }
 
-    // 4. INTERACTIVE BACKPACK & ARSENAL LOADOUT INSPECTOR
-    const ITEMS_DATA = {
+    const HOTBAR_ITEMS = {
       1: {
         category: 'CATEGORY // MELEE',
-        slot: 'SLOT 1 ✓',
+        slotBadge: 'SLOT 1 ✓',
         title: 'COMBAT KNIFE (x2)',
-        desc: 'Serrated tactical survival blade. Zero noise signature, zero ammo dependency—essential for silent close-quarters defense when rifle magazines run dry.',
+        desc: 'Tactical steel survival blade. Silent, zero-ammunition close-quarters defense ideal for conserving rifle rounds against isolated infected.',
         ammo: '0 / 0 (x2)',
         dmg: '35 (★100%)',
         weight: '0.70 KG',
-        actionLabel: 'EXECUTE SILENT SLASH [M1]',
-        feedback: 'Silent melee ready — Zero acoustic footprint.',
-        svg: `<svg class="w-40 h-20 text-gray-200" viewBox="0 0 200 60" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="20" y="24" width="52" height="12" rx="2" fill="#27272a" />
-                <path d="M72 20 L175 26 L185 30 L175 34 L72 40 Z" fill="#a1a1aa" />
-                <line x1="80" y1="30" x2="165" y2="30" stroke="#18181b" stroke-width="2" />
+        actionLabel: 'TEST SILENT MELEE STRIKE [M1]',
+        feedbackDefault: 'Equipped in hands — Silent lethal strike ready',
+        actionFeedback: 'SLASH EXECUTED — Zero noise signature generated (Ammo conserved).',
+        svg: `<svg class="w-40 h-20 text-gray-200" viewBox="0 0 220 80" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M20 45 L85 45 L85 33 L20 33 Z" fill="rgba(255,255,255,0.12)" />
+                <path d="M85 30 L93 30 L93 50 L85 50 Z" fill="#ff2a4b" stroke="#ff2a4b" />
+                <path d="M93 34 L195 34 L208 42 L93 45 Z" fill="rgba(255,255,255,0.25)" />
               </svg>`
       },
       2: {
         category: 'CATEGORY // GUNS',
-        slot: 'SLOT 2 ✓',
+        slotBadge: 'SLOT 2 ✓',
         title: 'ASSAULT RIFLE',
         desc: 'Military-grade automatic carbine. Balanced stopping power, range, and sustained automatic fire for clearing infected choke points across the island.',
         ammo: '30 / 90',
         dmg: '45 (★100%)',
         weight: '3.60 KG',
         actionLabel: 'TEST FIRE / RELOAD CYCLE [R]',
-        feedback: 'Currently equipped in hands — Ready for combat.',
-        svg: `<svg class="w-56 h-24 text-gray-200" viewBox="0 0 260 80" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 35 L55 30 L60 48 L15 55 Z" fill="#78350f" />
-                <rect x="58" y="28" width="95" height="16" fill="#27272a" />
-                <path d="M105 44 L118 72 L134 68 L122 44 Z" fill="#18181b" />
-                <rect x="153" y="31" width="55" height="10" fill="#78350f" />
-                <line x1="208" y1="35" x2="248" y2="35" stroke="#a1a1aa" stroke-width="3" />
-                <line x1="238" y1="27" x2="238" y2="35" stroke="#a1a1aa" stroke-width="2" />
+        feedbackDefault: 'Ready for combat — Aim [M2] & Fire [M1]',
+        actionFeedback: 'BURST FIRED (27/90) → TACTICAL RELOAD COMPLETE [R] (30/87).',
+        svg: `<svg class="w-56 h-24 text-gray-200" viewBox="0 0 260 90" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M15 45 L62 38 L62 56 L15 62 Z" fill="rgba(245,158,11,0.25)" stroke="#f59e0b" />
+                <rect x="62" y="36" width="88" height="16" fill="rgba(255,255,255,0.15)" />
+                <path d="M105 52 L118 82 L134 80 L121 52 Z" fill="rgba(255,255,255,0.2)" />
+                <path d="M82 52 L76 72 L88 72 L94 52 Z" fill="rgba(255,255,255,0.15)" />
+                <line x1="150" y1="42" x2="242" y2="42" stroke-width="3.5" />
+                <line x1="150" y1="36" x2="215" y2="36" stroke-width="2" />
+                <path d="M225 32 L225 42" stroke="#ff2a4b" stroke-width="2.5" />
               </svg>`
       },
       3: {
         category: 'CATEGORY // MED',
-        slot: 'SLOT 3 ✓',
+        slotBadge: 'SLOT 3 ✓',
         title: 'MEDICAL BANDAGE',
-        desc: 'Sterile compressed field dressing. Stops severe bleeding and restores Jake’s vital health (HP: 100/100) after zombie encounters.',
-        ammo: '1 USE',
+        desc: 'Sterile field compression dressing used to staunch bleeding and restore Jake’s vitals after zombie encounters.',
+        ammo: '1 / 1 USE',
         dmg: '+35 HP (★100%)',
         weight: '0.50 KG',
         actionLabel: 'APPLY FIELD BANDAGE [M1]',
-        feedback: 'Vitals stable — HP: 100 / 100.',
-        svg: `<svg class="w-32 h-20 text-gray-200" viewBox="0 0 120 70" fill="none" stroke="currentColor" stroke-width="2">
-                <ellipse cx="45" cy="35" rx="22" ry="18" fill="#d6d3d1" />
-                <path d="M45 17 L95 22 L95 48 L45 53" fill="#e7e5e4" />
-                <path d="M68 30 H78 M73 25 V35" stroke="#10b981" stroke-width="3" />
+        feedbackDefault: 'Sterile dressing ready — Restores survivor HP',
+        actionFeedback: 'BANDAGE APPLIED — Vitals stabilized at HP: 100 / 100.',
+        svg: `<svg class="w-32 h-20 text-biohazard" viewBox="0 0 140 80" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="30" y="22" width="80" height="36" rx="8" fill="rgba(16,185,129,0.15)" />
+                <path d="M55 22 L55 58 M85 22 L85 58" stroke-dasharray="4 3" />
+                <path d="M70 32 L70 48 M62 40 L78 40" stroke="#ffffff" stroke-width="3" />
               </svg>`
       }
     };
 
-    let activeSlot = 2;
-    let simAmmo = 30;
+    let activeHotbarSlot = 2;
 
     function equipSlot(slotNum) {
-      activeSlot = slotNum;
-      const item = ITEMS_DATA[slotNum];
+      const item = HOTBAR_ITEMS[slotNum];
       if (!item) return;
+      activeHotbarSlot = slotNum;
 
-      // Update hotbar button visuals
-      [1, 2, 3].forEach(n => {
-        const btn = document.getElementById('hotbar-' + n);
-        if (n === slotNum) {
-          btn.className = 'hotbar-btn p-3 bg-biohazard/15 border-2 border-biohazard text-left transition-all cursor-pointer';
+      [1, 2, 3].forEach(num => {
+        const btn = document.getElementById('hotbar-' + num);
+        if (!btn) return;
+        if (num === slotNum) {
+          btn.classList.remove('bg-obsidian', 'border', 'border-white/15');
+          btn.classList.add('bg-biohazard/15', 'border-2', 'border-biohazard');
         } else {
-          btn.className = 'hotbar-btn p-3 bg-obsidian border border-white/15 hover:border-biohazard text-left transition-all cursor-pointer';
+          btn.classList.remove('bg-biohazard/15', 'border-2', 'border-biohazard');
+          btn.classList.add('bg-obsidian', 'border', 'border-white/15');
         }
       });
 
-      document.getElementById('equippedStatusText').textContent = '● EQUIPPED: ' + item.title;
-      document.getElementById('itemCategoryTag').textContent = item.category;
-      document.getElementById('itemSlotBadge').textContent = item.slot;
-      document.getElementById('itemTitle').textContent = item.title;
-      document.getElementById('itemDescription').textContent = item.desc;
-      document.getElementById('itemStatAmmo').textContent = item.ammo;
-      document.getElementById('itemStatDmg').textContent = item.dmg;
-      document.getElementById('itemStatWeight').textContent = item.weight;
-      document.getElementById('itemGraphicContainer').innerHTML = item.svg;
-      document.getElementById('itemActionBtn').textContent = item.actionLabel;
-      document.getElementById('itemActionFeedback').textContent = item.feedback;
+      const statusEl = document.getElementById('equippedStatusText');
+      if (statusEl) statusEl.textContent = '● EQUIPPED: ' + item.title;
+
+      const catEl = document.getElementById('itemCategoryTag');
+      if (catEl) catEl.textContent = item.category;
+      const badgeEl = document.getElementById('itemSlotBadge');
+      if (badgeEl) badgeEl.textContent = item.slotBadge;
+      const titleEl = document.getElementById('itemTitle');
+      if (titleEl) titleEl.textContent = item.title;
+      const descEl = document.getElementById('itemDescription');
+      if (descEl) descEl.textContent = item.desc;
+      const graphicEl = document.getElementById('itemGraphicContainer');
+      if (graphicEl) graphicEl.innerHTML = item.svg;
+      const ammoEl = document.getElementById('itemStatAmmo');
+      if (ammoEl) ammoEl.textContent = item.ammo;
+      const dmgEl = document.getElementById('itemStatDmg');
+      if (dmgEl) dmgEl.textContent = item.dmg;
+      const weightEl = document.getElementById('itemStatWeight');
+      if (weightEl) weightEl.textContent = item.weight;
+      const actionBtn = document.getElementById('itemActionBtn');
+      if (actionBtn) actionBtn.textContent = item.actionLabel;
+      const feedbackEl = document.getElementById('itemActionFeedback');
+      if (feedbackEl) {
+        feedbackEl.textContent = item.feedbackDefault;
+        feedbackEl.className = 'font-mono text-xs text-center text-gray-400 min-h-[20px]';
+      }
     }
 
     function triggerItemTestAction() {
-      const fb = document.getElementById('itemActionFeedback');
-      if (activeSlot === 2) {
-        if (simAmmo > 21) {
-          simAmmo -= 3;
-          document.getElementById('itemStatAmmo').textContent = `${simAmmo} / 90`;
-          fb.innerHTML = `<span class="text-crimson font-bold">BURST FIRED!</span> Magazine at ${simAmmo}/90 — Press again to reload.`;
-        } else {
-          simAmmo = 30;
-          document.getElementById('itemStatAmmo').textContent = `30 / 90`;
-          fb.innerHTML = `<span class="text-biohazard font-bold">[R] MAGAZINE RELOADED!</span> Full 30/90 chambered.`;
+      const item = HOTBAR_ITEMS[activeHotbarSlot];
+      const feedbackEl = document.getElementById('itemActionFeedback');
+      if (!item || !feedbackEl) return;
+      feedbackEl.textContent = item.actionFeedback;
+      feedbackEl.className = 'font-mono text-xs text-center text-biohazard font-bold min-h-[20px]';
+    }
+
+    // ==================== TRAILER INTRO & CENTER REPLAY SYSTEM ====================
+    const INTRO_VIDEO_FILTERS = {
+      original: { css: 'none', scanlines: false },
+      cinema: { css: 'contrast(1.12) saturate(1.18) brightness(0.96)', scanlines: false },
+      night: { css: 'contrast(1.18) saturate(0.82) brightness(0.95) hue-rotate(-8deg)', scanlines: false },
+      surveillance: { css: 'contrast(1.22) saturate(0.65) brightness(0.92) sepia(0.18)', scanlines: true }
+    };
+
+    function setIntroVideoFilter(mode, btnEl) {
+      const vid = document.getElementById('introTrailerVideo');
+      const scanOverlay = document.getElementById('introVideoFilterOverlay');
+      const preset = INTRO_VIDEO_FILTERS[mode] || INTRO_VIDEO_FILTERS.original;
+
+      if (vid) {
+        vid.style.filter = preset.css;
+      }
+      if (scanOverlay) {
+        scanOverlay.classList.toggle('hidden', !preset.scanlines);
+      }
+
+      document.querySelectorAll('.intro-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-crimson', 'text-white', 'font-bold');
+        btn.classList.add('bg-transparent', 'text-gray-300');
+      });
+      if (btnEl) {
+        btnEl.classList.remove('bg-transparent', 'text-gray-300');
+        btnEl.classList.add('bg-crimson', 'text-white', 'font-bold');
+      }
+    }
+
+    function hideVideoPlayPrompt(overlayId) {
+      const el = document.getElementById(overlayId);
+      if (el) el.classList.add('hidden');
+    }
+
+    function showVideoPlayPrompt(overlayId) {
+      const el = document.getElementById(overlayId);
+      if (el) el.classList.remove('hidden');
+    }
+
+    function handleTrailerVideoError(videoEl, overlayId) {
+      if (!videoEl) return;
+      const attempt = parseInt(videoEl.dataset.retryAttempt || '0', 10);
+      const candidates = ['trailer.mp4', './trailer.mp4', 'trailer.mp4.mp4', './trailer.mp4.mp4'];
+      if (attempt < candidates.length) {
+        videoEl.dataset.retryAttempt = String(attempt + 1);
+        videoEl.src = candidates[attempt];
+        videoEl.load();
+        return;
+      }
+      showVideoPlayPrompt(overlayId);
+    }
+
+    function syncIntroUnmuteButton() {
+      const vid = document.getElementById('introTrailerVideo');
+      const btn = document.getElementById('introUnmuteBtn');
+      if (!vid || !btn) return;
+      btn.textContent = vid.muted ? '🔊 UNMUTE TRAILER AUDIO' : '🔇 MUTE TRAILER AUDIO';
+    }
+
+    function startIntroVideoPlayback() {
+      const introVid = document.getElementById('introTrailerVideo');
+      if (!introVid) return;
+      introVid.muted = false;
+      syncIntroUnmuteButton();
+      const playPromise = introVid.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            hideVideoPlayPrompt('introPlayOverlay');
+            syncIntroUnmuteButton();
+          })
+          .catch(() => {
+            // If browser blocks unmuted playback, play muted immediately
+            introVid.muted = true;
+            syncIntroUnmuteButton();
+            introVid.play().then(() => {
+              hideVideoPlayPrompt('introPlayOverlay');
+            }).catch(() => {
+              showVideoPlayPrompt('introPlayOverlay');
+            });
+          });
+      }
+    }
+
+    function initTrailerPlayers() {
+      const overlay = document.getElementById('introTrailerOverlay');
+      if (overlay && !overlay.classList.contains('hidden')) {
+        document.body.style.overflow = 'hidden';
+      }
+      const introVid = document.getElementById('introTrailerVideo');
+      if (introVid) {
+        introVid.muted = true;
+        introVid.defaultMuted = true;
+        introVid.currentTime = 0;
+        syncIntroUnmuteButton();
+        const p = introVid.play();
+        if (p !== undefined) {
+          p.then(() => {
+            hideVideoPlayPrompt('introPlayOverlay');
+          }).catch(() => {
+            // Keep tactile play overlay visible so a single click starts the video cleanly
+            showVideoPlayPrompt('introPlayOverlay');
+          });
         }
-      } else if (activeSlot === 1) {
-        fb.innerHTML = `<span class="text-amberhazard font-bold">MELEE STRIKE EXECUTED!</span> 35 DMG — Zero gunfire sound.`;
-      } else {
-        fb.innerHTML = `<span class="text-biohazard font-bold">BANDAGE APPLIED!</span> Health restored to HP: 100 / 100.`;
+      }
+    }
+
+    function dismissIntroTrailer() {
+      const overlay = document.getElementById('introTrailerOverlay');
+      const vid = document.getElementById('introTrailerVideo');
+      if (vid) {
+        try { vid.pause(); } catch (e) {}
+      }
+      if (overlay) overlay.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    function onIntroTrailerEnded() {
+      showVideoPlayPrompt('introPlayOverlay');
+      setTimeout(() => {
+        dismissIntroTrailer();
+      }, 900);
+    }
+
+    function unmuteIntroTrailer() {
+      const vid = document.getElementById('introTrailerVideo');
+      if (!vid) return;
+      vid.muted = !vid.muted;
+      syncIntroUnmuteButton();
+      if (!vid.muted) {
+        vid.play().then(() => hideVideoPlayPrompt('introPlayOverlay')).catch(() => {});
+      }
+    }
+
+    function openIntroTrailerAgain() {
+      const centerVid = document.getElementById('centerTrailerVideo');
+      if (centerVid) {
+        try { centerVid.pause(); } catch (e) {}
+      }
+      const overlay = document.getElementById('introTrailerOverlay');
+      const vid = document.getElementById('introTrailerVideo');
+      if (overlay) overlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      if (vid) {
+        vid.currentTime = 0;
+        startIntroVideoPlayback();
+      }
+    }
+
+    function replayCenterTrailer() {
+      const introVid = document.getElementById('introTrailerVideo');
+      if (introVid) {
+        try { introVid.pause(); } catch (e) {}
+      }
+      const section = document.getElementById('trailer-center');
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const vid = document.getElementById('centerTrailerVideo');
+      if (vid) {
+        vid.muted = false;
+        vid.currentTime = 0;
+        vid.play()
+          .then(() => hideVideoPlayPrompt('centerPlayOverlay'))
+          .catch(() => {
+            vid.muted = true;
+            vid.play().then(() => hideVideoPlayPrompt('centerPlayOverlay')).catch(() => {});
+          });
       }
     }
 
@@ -1482,6 +1844,7 @@
       if (e.key === '2') equipSlot(2);
       if (e.key === '3') equipSlot(3);
       if (e.key === 'Escape') {
+        dismissIntroTrailer();
         closeLightbox();
         closeDownloadModal();
       }
@@ -1586,8 +1949,10 @@
 
       document.getElementById('sectorImage').src = sec.image;
       window.setGameImage(document.getElementById('sectorImage'), sec.image);
-      document.getElementById('sectorCoords').textContent = sec.coords;
-      document.getElementById('sectorDanger').textContent = sec.danger;
+      const coordsEl = document.getElementById('sectorCoords');
+      if (coordsEl) coordsEl.textContent = sec.coords;
+      const dangerEl = document.getElementById('sectorDanger');
+      if (dangerEl) dangerEl.textContent = sec.danger;
       document.getElementById('sectorTitle').textContent = sec.title;
       document.getElementById('sectorDesc').textContent = sec.desc;
       document.getElementById('sectorLoot').textContent = sec.loot;
